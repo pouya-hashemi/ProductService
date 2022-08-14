@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Beta.ProductService.WebApi.Common
 {
-    public class RabbitMqPublisher<T>: IRabbitMqPublisher<T>
-        where T : IRabbitMessage
+    public class RabbitMqPublisher: IRabbitMqPublisher
+
     {
         private readonly IConfiguration _configuration;
 
@@ -14,7 +14,8 @@ namespace Beta.ProductService.WebApi.Common
         {
             this._configuration = configuration;
         }
-        public void Publish(T message)
+        public void Publish<T>(T message)
+                    where T : IRabbitMessage
         {
             var factory = new ConnectionFactory()
             {

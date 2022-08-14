@@ -1,8 +1,8 @@
 ﻿namespace Beta.ProductService.WebApi.Interfaces
 {
-    public interface IRabbitMqPublisher<T>
-         where T : IRabbitMessage
+    public interface IRabbitMqPublisher
     {
-        void Publish(T message);
+        void Publish<T>(T message)
+                    where T : IRabbitMessage;
     }
 }

@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductManager, ProductManager>();
-builder.Services.AddScoped(typeof(IRabbitMqPublisher<>),typeof(RabbitMqPublisher<>));
+builder.Services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
 
 builder.Services.AddDbContext<SqlDbContext>(option =>
 {

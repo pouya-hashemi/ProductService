@@ -4,19 +4,22 @@ using Beta.ProductService.WebApi.Interfaces;
 using Beta.ProductService.WebApi.Persistance.Entities;
 using Beta.ProductService.WebApi.RabbitMessages;
 using Microsoft.EntityFrameworkCore;
+using Mapster;
 
 namespace Beta.ProductService.WebApi.EntityServices;
 
 public class ProductManager:IProductManager
 {
     private readonly ISqlDbContext _context;
-    private readonly IRabbitMqPublisher<CreateProductMessage> _createProductPublisher;
+    private readonly IRabbitMqPublisher _rabbitPublisher;
+
 
     public ProductManager(ISqlDbContext context,
-        IRabbitMqPublisher<CreateProductMessage> createProductPublisher)
+        IRabbitMqPublisher rabbhitPublisher
+        )
     {
         _context = context;
-        this._createProductPublisher = createProductPublisher;
+        this._rabbitPublisher = rabbhitPublisher;
     }
     public async Task<IEnumerable<ProductReadDto>> GetProductsAsync(
         long? productId, 
@@ -52,7 +55,7 @@ public class ProductManager:IProductManager
 
     }
 
-    public async Task<Product> CreateProductAsync(ProductCreateDto productDto)
+    public async Task<ProductReadDto> CreateProductAsync(ProductCreateDto productDto)
     {
         var product = new Product(productDto.Name);
 
@@ -61,12 +64,14 @@ public class ProductManager:IProductManager
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 
-        _createProductPublisher.Publish(new CreateProductMessage(product));
+        var productReadDto=  product.Adapt<ProductReadDto>();
+
+        _rabbitPublisher.Publish(new CreateProductMessage(productReadDto));
 
 
-        return product;
+        return productReadDto;
     }
-    public async Task<Product> UpdateProductAsync(ProductUpdateDto productDto)
+    public async Task<ProductReadDto> UpdateProductAsync(ProductUpdateDto productDto)
     {
         var product = await GetProductIfExists(productDto.Id);
 
@@ -76,8 +81,12 @@ public class ProductManager:IProductManager
 
         _context.Products.Update(product);
         await _context.SaveChangesAsync();
-        
-        return product;
+
+        var productReadDto = product.Adapt<ProductReadDto>();
+
+        _rabbitPublisher.Publish(new UpdateProductMessage(productReadDto));
+
+        return productReadDto;
     }
 
     public async Task DeleteProductAsync(long id)
@@ -86,6 +95,8 @@ public class ProductManager:IProductManager
 
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
+
+        _rabbitPublisher.Publish(new DeleteProductMessage(id));
 
     }
 

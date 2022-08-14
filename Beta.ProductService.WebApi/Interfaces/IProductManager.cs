@@ -11,7 +11,7 @@ public interface IProductManager
         int pageSize=20,
         int pageIndex=1);
 
-    Task<Product> CreateProductAsync(ProductCreateDto productDto);
-    Task<Product> UpdateProductAsync(ProductUpdateDto productDto);
+    Task<ProductReadDto> CreateProductAsync(ProductCreateDto productDto);
+    Task<ProductReadDto> UpdateProductAsync(ProductUpdateDto productDto);
     Task DeleteProductAsync(long id);
 }

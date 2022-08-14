@@ -1,11 +1,12 @@
-﻿using Beta.ProductService.WebApi.Interfaces;
+﻿using Beta.ProductService.WebApi.Dtos.ProductDtos;
+using Beta.ProductService.WebApi.Interfaces;
 using RabbitMQ.Client;
 
 namespace Beta.ProductService.WebApi.RabbitMessages
 {
     public class CreateProductMessage : IRabbitMessage
     {
-        public CreateProductMessage(object messageData)
+        public CreateProductMessage(ProductReadDto messageData)
         {
             this.ExchangeName = "CreateProduct";
             this.ExchangeType = RabbitMQ.Client.ExchangeType.Fanout;   
