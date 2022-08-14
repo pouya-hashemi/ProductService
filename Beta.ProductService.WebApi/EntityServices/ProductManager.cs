@@ -2,6 +2,7 @@ using Beta.ProductService.WebApi.Dtos.ProductDtos;
 using Beta.ProductService.WebApi.Exceptions;
 using Beta.ProductService.WebApi.Interfaces;
 using Beta.ProductService.WebApi.Persistance.Entities;
+using Beta.ProductService.WebApi.RabbitMessages;
 using Microsoft.EntityFrameworkCore;
 
 namespace Beta.ProductService.WebApi.EntityServices;
@@ -9,10 +10,13 @@ namespace Beta.ProductService.WebApi.EntityServices;
 public class ProductManager:IProductManager
 {
     private readonly ISqlDbContext _context;
+    private readonly IRabbitMqPublisher<CreateProductMessage> _createProductPublisher;
 
-    public ProductManager(ISqlDbContext context)
+    public ProductManager(ISqlDbContext context,
+        IRabbitMqPublisher<CreateProductMessage> createProductPublisher)
     {
         _context = context;
+        this._createProductPublisher = createProductPublisher;
     }
     public async Task<IEnumerable<ProductReadDto>> GetProductsAsync(
         long? productId, 
@@ -56,7 +60,10 @@ public class ProductManager:IProductManager
 
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
-        
+
+        _createProductPublisher.Publish(new CreateProductMessage(product));
+
+
         return product;
     }
     public async Task<Product> UpdateProductAsync(ProductUpdateDto productDto)

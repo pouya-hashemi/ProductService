@@ -1,3 +1,4 @@
+using Beta.ProductService.WebApi.Common;
 using Beta.ProductService.WebApi.EntityServices;
 using Beta.ProductService.WebApi.Interfaces;
 using Beta.ProductService.WebApi.Persistance.DbContexts;
@@ -12,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductManager, ProductManager>();
+builder.Services.AddScoped(typeof(IRabbitMqPublisher<>),typeof(RabbitMqPublisher<>));
 
 builder.Services.AddDbContext<SqlDbContext>(option =>
 {
