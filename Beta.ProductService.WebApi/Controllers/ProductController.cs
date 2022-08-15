@@ -21,7 +21,7 @@ public class ProductController:ControllerBase
         return Ok(products);
     }
     [HttpGet("{id}")]
-    public async Task<ActionResult<IEnumerable<ProductReadDto>>> GetProductById(long? id)
+    public async Task<ActionResult<ProductReadDto>> GetProductById(long? id)
     {
         var products = await _productManager.GetProductsAsync(id);
         return Ok(products.FirstOrDefault());
